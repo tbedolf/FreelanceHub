@@ -21,14 +21,13 @@ docker compose up -d
 ```bash
 cd backend
 npm install
-cp .env.example .env
 npx prisma migrate dev --name init
 npm run dev
 ```
 
 Backend runs on:
 ```text
-http://localhost:5000
+http://localhost:5001
 ```
 
 ### 3. Frontend setup
