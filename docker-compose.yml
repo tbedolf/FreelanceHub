@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: freelancehub_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: freelancehub
+      POSTGRES_PASSWORD: freelancehub
+      POSTGRES_DB: freelancehub
+    ports:
+      - "5432:5432"
+    volumes:
+      - freelancehub_data:/var/lib/postgresql/data
+
+volumes:
+  freelancehub_data:
