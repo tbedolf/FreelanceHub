@@ -628,3 +628,14 @@ cython_debug/
 .pypirc
 
 .DS_Store
+# dependencies
+node_modules/
+
+# environment variables
+.env
+
+# build output
+dist/
+
+# macOS
+.DS_Store
