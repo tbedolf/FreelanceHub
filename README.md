@@ -10,6 +10,77 @@ A full-stack freelance marketplace where clients post projects, freelancers subm
 - Auth: JWT
 - Dev DB: Docker Compose PostgreSQL
 
+# Project Structure
+
+```text
+freelancehub/
+│
+├── backend/
+│   │
+│   ├── prisma/
+│   │   └── schema.prisma
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.js
+│   │   │   ├── bid.controller.js
+│   │   │   ├── milestone.controller.js
+│   │   │   ├── project.controller.js
+│   │   │   └── review.controller.js
+│   │   │
+│   │   ├── middleware/
+│   │   │   └── auth.js
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── auth.routes.js
+│   │   │   ├── bid.routes.js
+│   │   │   ├── milestone.routes.js
+│   │   │   ├── project.routes.js
+│   │   │   └── review.routes.js
+│   │   │
+│   │   ├── utils/
+│   │   │   └── prisma.js
+│   │   │
+│   │   └── server.js
+│   │
+│   ├── .env
+│   ├── package.json
+│   └── prisma.config.ts
+│
+├── frontend/
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── api/
+│   │   │
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   │
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── NewProject.jsx
+│   │   │   ├── ProjectDetails.jsx
+│   │   │   ├── Projects.jsx
+│   │   │   └── Register.jsx
+│   │   │
+│   │   ├── services/
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
+│   ├── .env
+│   ├── package.json
+│   └── index.html
+│
+├── docker-compose.yml
+
 ## Quick Start
 
 ### 1. Start PostgreSQL

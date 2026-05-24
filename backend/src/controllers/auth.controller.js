@@ -2,9 +2,18 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const prisma = require("../utils/prisma");
 
-async function register(req, res) {
+/*
+========================================
+REGISTER
+========================================
+*/
+exports.register = async (req, res) => {
+  console.log("REGISTER ROUTE HIT");
+
   try {
     const { name, email, password, role } = req.body;
+
+    console.log("REQUEST BODY:", req.body);
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -16,27 +25,39 @@ async function register(req, res) {
       });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        passwordHash,
+        passwordHash: hashedPassword,
         role,
       },
     });
 
-    res.status(201).json(user);
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+    });
   } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
     res.status(500).json({
       message: "Registration failed",
       error: error.message,
     });
   }
-}
+};
 
-async function login(req, res) {
+/*
+========================================
+LOGIN
+========================================
+*/
+exports.login = async (req, res) => {
+  console.log("LOGIN ROUTE HIT");
+
   try {
     const { email, password } = req.body;
 
@@ -45,7 +66,7 @@ async function login(req, res) {
     });
 
     if (!user) {
-      return res.status(401).json({
+      return res.status(400).json({
         message: "Invalid credentials",
       });
     }
@@ -56,7 +77,7 @@ async function login(req, res) {
     );
 
     if (!validPassword) {
-      return res.status(401).json({
+      return res.status(400).json({
         message: "Invalid credentials",
       });
     }
@@ -82,14 +103,11 @@ async function login(req, res) {
       },
     });
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
     res.status(500).json({
       message: "Login failed",
       error: error.message,
     });
   }
-}
-
-module.exports = {
-  register,
-  login,
 };

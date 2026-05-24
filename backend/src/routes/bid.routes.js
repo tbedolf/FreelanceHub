@@ -1,6 +1,14 @@
 const express = require("express");
-const prisma = require("../utils/prisma");
-const { requireAuth, requireRole } = require("../middleware/auth");
+
+const {
+  createBid,
+  acceptBid,
+} = require("../controllers/bid.controller");
+
+const {
+  requireAuth,
+  requireRole,
+} = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -9,103 +17,23 @@ const router = express.Router();
 CREATE BID (FREELANCER ONLY)
 ========================================
 */
-router.post("/", requireAuth, requireRole("FREELANCER"), async (req, res) => {
-  try {
-    const { projectId, proposal, bidAmount, estimatedDays } = req.body;
-
-    const existingBid = await prisma.bid.findUnique({
-      where: {
-        projectId_freelancerId: {
-          projectId: Number(projectId),
-          freelancerId: req.user.id,
-        },
-      },
-    });
-
-    if (existingBid) {
-      return res.status(400).json({
-        message: "You have already bid on this project",
-      });
-    }
-
-    const bid = await prisma.bid.create({
-      data: {
-        projectId: Number(projectId),
-        freelancerId: req.user.id,
-        proposal,
-        bidAmount: Number(bidAmount),
-        estimatedDays: Number(estimatedDays),
-      },
-    });
-
-    res.status(201).json(bid);
-  } catch (error) {
-    console.error("BID CREATE ERROR:", error);
-
-    res.status(500).json({
-      message: "Bid creation failed",
-      error: error.message,
-    });
-  }
-});
+router.post(
+  "/",
+  requireAuth,
+  requireRole("FREELANCER"),
+  createBid
+);
 
 /*
 ========================================
 ACCEPT BID (CLIENT ONLY)
 ========================================
 */
-router.put("/:id/accept", requireAuth, requireRole("CLIENT"), async (req, res) => {
-  try {
-    const bidId = Number(req.params.id);
-
-    const bid = await prisma.bid.findUnique({
-      where: { id: bidId },
-      include: { project: true },
-    });
-
-    if (!bid) {
-      return res.status(404).json({
-        message: "Bid not found",
-      });
-    }
-
-    // Ensure only project owner can accept
-    if (bid.project.clientId !== req.user.id) {
-      return res.status(403).json({
-        message: "You can only accept bids on your own project",
-      });
-    }
-
-    // Accept selected bid
-    await prisma.bid.update({
-      where: { id: bidId },
-      data: { status: "ACCEPTED" },
-    });
-
-    // Reject all other bids
-    await prisma.bid.updateMany({
-      where: {
-        projectId: bid.projectId,
-        id: { not: bidId },
-      },
-      data: { status: "REJECTED" },
-    });
-
-    // Update project status
-    await prisma.project.update({
-      where: { id: bid.projectId },
-      data: { status: "IN_PROGRESS" },
-    });
-
-    res.json({ message: "Bid accepted successfully" });
-  } catch (error) {
-    console.error("ACCEPT BID ERROR:", error);
-
-    res.status(500).json({
-      message: "Failed to accept bid",
-      error: error.message,
-    });
-  }
-});
+router.put(
+  "/:id/accept",
+  requireAuth,
+  requireRole("CLIENT"),
+  acceptBid
+);
 
 module.exports = router;
