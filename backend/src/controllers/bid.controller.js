@@ -9,10 +9,54 @@ exports.createBid = async (req, res) => {
   try {
     const { projectId, proposal, bidAmount, estimatedDays } = req.body;
 
+    const numericProjectId = Number(projectId);
+    const numericBidAmount = Number(bidAmount);
+    const numericEstimatedDays = Number(estimatedDays);
+
+    if (!Number.isInteger(numericProjectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
+    if (!proposal?.trim()) {
+      return res.status(400).json({ message: "Proposal is required" });
+    }
+
+    if (!Number.isFinite(numericBidAmount) || numericBidAmount <= 0) {
+      return res.status(400).json({
+        message: "Bid amount must be greater than zero",
+      });
+    }
+
+    if (!Number.isInteger(numericEstimatedDays) || numericEstimatedDays <= 0) {
+      return res.status(400).json({
+        message: "Estimated days must be a positive integer",
+      });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: numericProjectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.status !== "OPEN") {
+      return res.status(400).json({
+        message: "This project is no longer accepting bids",
+      });
+    }
+
+    if (project.clientId === req.user.id) {
+      return res.status(403).json({
+        message: "You cannot bid on your own project",
+      });
+    }
+
     const existingBid = await prisma.bid.findUnique({
       where: {
         projectId_freelancerId: {
-          projectId: Number(projectId),
+          projectId: numericProjectId,
           freelancerId: req.user.id,
         },
       },
@@ -26,11 +70,11 @@ exports.createBid = async (req, res) => {
 
     const bid = await prisma.bid.create({
       data: {
-        projectId: Number(projectId),
+        projectId: numericProjectId,
         freelancerId: req.user.id,
-        proposal,
-        bidAmount: Number(bidAmount),
-        estimatedDays: Number(estimatedDays),
+        proposal: proposal.trim(),
+        bidAmount: numericBidAmount,
+        estimatedDays: numericEstimatedDays,
       },
     });
 
@@ -71,23 +115,26 @@ exports.acceptBid = async (req, res) => {
       });
     }
 
-    await prisma.bid.update({
-      where: { id: bidId },
-      data: { status: "ACCEPTED" },
-    });
+    if (bid.project.status !== "OPEN") {
+      return res.status(400).json({
+        message: "This project already has an accepted bid",
+      });
+    }
 
-    await prisma.bid.updateMany({
-      where: {
-        projectId: bid.projectId,
-        id: { not: bidId },
-      },
-      data: { status: "REJECTED" },
-    });
-
-    await prisma.project.update({
-      where: { id: bid.projectId },
-      data: { status: "IN_PROGRESS" },
-    });
+    await prisma.$transaction([
+      prisma.bid.update({
+        where: { id: bidId },
+        data: { status: "ACCEPTED" },
+      }),
+      prisma.bid.updateMany({
+        where: { projectId: bid.projectId, id: { not: bidId } },
+        data: { status: "REJECTED" },
+      }),
+      prisma.project.update({
+        where: { id: bid.projectId },
+        data: { status: "IN_PROGRESS" },
+      }),
+    ]);
 
     res.json({
       message: "Bid accepted successfully",
@@ -100,4 +147,44 @@ exports.acceptBid = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+exports.getMyBids = async (req, res) => {
+  try {
+    const bids = await prisma.bid.findMany({
+      where: { freelancerId: req.user.id },
+      include: {
+        project: {
+          select: { id: true, title: true, status: true, budgetMin: true, budgetMax: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return res.json(bids);
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to retrieve bids" });
+  }
+};
+
+exports.rejectBid = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ message: "Invalid bid ID" });
+
+  const bid = await prisma.bid.findUnique({
+    where: { id },
+    include: { project: true },
+  });
+  if (!bid) return res.status(404).json({ message: "Bid not found" });
+  if (req.user.role !== "ADMIN" && bid.project.clientId !== req.user.id) {
+    return res.status(403).json({ message: "You can only reject bids on your project" });
+  }
+  if (bid.status !== "PENDING" || bid.project.status !== "OPEN") {
+    return res.status(400).json({ message: "Only pending bids on open projects can be rejected" });
+  }
+
+  const updated = await prisma.bid.update({
+    where: { id },
+    data: { status: "REJECTED" },
+  });
+  return res.json(updated);
 };

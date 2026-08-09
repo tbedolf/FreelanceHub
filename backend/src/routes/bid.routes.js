@@ -3,6 +3,8 @@ const express = require("express");
 const {
   createBid,
   acceptBid,
+  getMyBids,
+  rejectBid,
 } = require("../controllers/bid.controller");
 
 const {
@@ -11,6 +13,8 @@ const {
 } = require("../middleware/auth");
 
 const router = express.Router();
+
+router.get("/mine", requireAuth, requireRole("FREELANCER"), getMyBids);
 
 /*
 ========================================
@@ -34,6 +38,13 @@ router.put(
   requireAuth,
   requireRole("CLIENT"),
   acceptBid
+);
+
+router.put(
+  "/:id/reject",
+  requireAuth,
+  requireRole("CLIENT", "ADMIN"),
+  rejectBid
 );
 
 module.exports = router;

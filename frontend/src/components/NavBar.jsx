@@ -12,38 +12,36 @@ export default function Navbar() {
   }
 
   return (
-    <nav
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "20px",
-        borderBottom: "1px solid #ccc",
-      }}
-    >
-      <Link to="/">FreelanceHub</Link>
+    <nav className="navbar">
+      <Link to="/" className="logo-wrapper">
+        <div className="logo-icon">FH</div>
+        <span className="logo-text">FreelanceHub</span>
+      </Link>
 
-      <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+      <div className="nav-links">
         <Link to="/projects">Projects</Link>
 
-        {/* 👇 SHOW ONLY FOR CLIENTS */}
+        {user && <Link to="/dashboard">Dashboard</Link>}
+        {user && <Link to="/profile">Profile</Link>}
+        {user?.role === "FREELANCER" && <Link to="/my-bids">My Bids</Link>}
+        {user?.role === "ADMIN" && <Link to="/admin">Admin</Link>}
+
         {user && user.role?.toUpperCase() === "CLIENT" && (
           <Link to="/new-project">Post Project</Link>
         )}
 
-        {user ? (
+        {!user && <Link to="/login">Login</Link>}
+        {!user && <Link to="/register">Register</Link>}
+
+        {user && (
           <>
-            <span>
-              Welcome, {user.name} ({user.role})
+            <span className="user-pill">
+              {user.name} · {user.role}
             </span>
 
-            <button onClick={handleLogout}>
+            <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
           </>
         )}
       </div>

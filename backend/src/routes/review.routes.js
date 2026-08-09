@@ -1,22 +1,12 @@
 const express = require("express");
-
-const { requireAuth } = require("../middleware/auth");
-
+const router = express.Router();
 const {
   createReview,
+  getProjectReviews,
 } = require("../controllers/review.controller");
+const { requireAuth } = require("../middleware/auth");
 
-const router = express.Router();
-
-/*
-========================================
-CREATE REVIEW
-========================================
-*/
-router.post(
-  "/",
-  requireAuth,
-  createReview
-);
+router.post("/", requireAuth, createReview);
+router.get("/project/:projectId", getProjectReviews);
 
 module.exports = router;

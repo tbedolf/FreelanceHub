@@ -9,14 +9,14 @@ const projectRoutes = require("./routes/project.routes.js");
 const bidRoutes = require("./routes/bid.routes.js");
 const milestoneRoutes = require("./routes/milestone.routes.js");
 const reviewRoutes = require("./routes/review.routes.js");
-
-console.log("AUTH ROUTES:", authRoutes);
+const userRoutes = require("./routes/user.routes.js");
+const adminRoutes = require("./routes/admin.routes.js");
 
 const app = express();
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
@@ -30,19 +30,34 @@ app.get("/", (req, res) => {
   });
 });
 
-/*
-========================================
-ROUTES
-========================================
-*/
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/bids", bidRoutes);
 app.use("/api/milestones", milestoneRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Route not found",
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
+});
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
-  console.log(`API running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`API running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

@@ -34,17 +34,18 @@ enum MilestoneStatus {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  name           String
-  email          String    @unique
-  passwordHash   String
-  role           Role
-  createdAt      DateTime  @default(now())
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
-  clientProjects Project[] @relation("ClientProjects")
-  bids           Bid[]
-  reviewsGiven   Review[] @relation("ReviewsGiven")
-  reviewsReceived Review[] @relation("ReviewsReceived")
+  clientProjects  Project[] @relation("ClientProjects")
+  bids            Bid[]
+  reviewsGiven    Review[]  @relation("ReviewsGiven")
+  reviewsReceived Review[]  @relation("ReviewsReceived")
 }
 
 model Project {
@@ -58,10 +59,10 @@ model Project {
   status      ProjectStatus @default(OPEN)
   createdAt   DateTime      @default(now())
 
-  client      User        @relation("ClientProjects", fields: [clientId], references: [id])
-  bids        Bid[]
-  milestones  Milestone[]
-  reviews     Review[]
+  client     User        @relation("ClientProjects", fields: [clientId], references: [id])
+  bids       Bid[]
+  milestones Milestone[]
+  reviews    Review[]
 }
 
 model Bid {
@@ -92,15 +93,17 @@ model Milestone {
 }
 
 model Review {
-  id          Int      @id @default(autoincrement())
-  projectId   Int
-  reviewerId  Int
-  revieweeId  Int
-  rating      Int
-  comment     String?
-  createdAt   DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  projectId  Int
+  reviewerId Int
+  revieweeId Int
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
 
   project  Project @relation(fields: [projectId], references: [id])
   reviewer User    @relation("ReviewsGiven", fields: [reviewerId], references: [id])
   reviewee User    @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+
+  @@unique([projectId, reviewerId])
 }

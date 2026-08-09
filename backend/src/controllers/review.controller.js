@@ -1,106 +1,101 @@
 const prisma = require("../utils/prisma");
 
-/*
-========================================
-CREATE REVIEW
-========================================
-*/
 exports.createReview = async (req, res) => {
   try {
-    const { projectId, rating, comment } = req.body;
+    const projectId = Number(req.body.projectId);
+    const rating = Number(req.body.rating);
+    const comment = req.body.comment?.trim() || null;
+
+    if (!Number.isInteger(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        message: "Rating must be an integer between 1 and 5",
+      });
+    }
 
     const project = await prisma.project.findUnique({
-      where: {
-        id: Number(projectId),
-      },
-      include: {
-        bids: true,
-      },
+      where: { id: projectId },
+      include: { bids: { where: { status: "ACCEPTED" } } },
     });
 
     if (!project) {
-      return res.status(404).json({
-        message: "Project not found",
-      });
+      return res.status(404).json({ message: "Project not found" });
     }
 
-    /*
-    ========================================
-    ONLY PROJECT OWNER CAN REVIEW
-    ========================================
-    */
-    if (project.clientId !== req.user.id) {
-      return res.status(403).json({
-        message: "Only project owner can review",
-      });
-    }
-
-    /*
-    ========================================
-    PROJECT MUST BE COMPLETED
-    ========================================
-    */
     if (project.status !== "COMPLETED") {
       return res.status(400).json({
-        message: "Project is not completed yet",
+        message: "Reviews can only be submitted after project completion",
       });
     }
 
-    /*
-    ========================================
-    FIND ACCEPTED FREELANCER
-    ========================================
-    */
-    const acceptedBid = project.bids.find(
-      (b) => b.status === "ACCEPTED"
-    );
-
+    const acceptedBid = project.bids[0];
     if (!acceptedBid) {
       return res.status(400).json({
-        message: "No accepted freelancer",
+        message: "This project does not have an accepted freelancer",
       });
     }
 
-    /*
-    ========================================
-    PREVENT DUPLICATE REVIEWS
-    ========================================
-    */
-    const existingReview = await prisma.review.findFirst({
+    let revieweeId;
+    if (req.user.id === project.clientId) {
+      revieweeId = acceptedBid.freelancerId;
+    } else if (req.user.id === acceptedBid.freelancerId) {
+      revieweeId = project.clientId;
+    } else {
+      return res.status(403).json({
+        message: "You did not participate in this project",
+      });
+    }
+
+    const existingReview = await prisma.review.findUnique({
       where: {
-        projectId: Number(projectId),
-        reviewerId: req.user.id,
+        projectId_reviewerId: { projectId, reviewerId: req.user.id },
       },
     });
 
     if (existingReview) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: "You have already reviewed this project",
       });
     }
 
-    /*
-    ========================================
-    CREATE REVIEW
-    ========================================
-    */
     const review = await prisma.review.create({
       data: {
-        projectId: Number(projectId),
+        projectId,
         reviewerId: req.user.id,
-        revieweeId: acceptedBid.freelancerId,
-        rating: Number(rating),
+        revieweeId,
+        rating,
         comment,
       },
     });
 
-    res.status(201).json(review);
+    return res.status(201).json(review);
   } catch (error) {
-    console.error("REVIEW ERROR:", error);
+    console.error("CREATE REVIEW ERROR:", error);
+    return res.status(500).json({ message: "Failed to create review" });
+  }
+};
 
-    res.status(500).json({
-      message: "Review failed",
-      error: error.message,
+exports.getProjectReviews = async (req, res) => {
+  try {
+    const projectId = Number(req.params.projectId);
+    if (!Number.isInteger(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: { projectId },
+      include: {
+        reviewer: { select: { id: true, name: true, role: true } },
+        reviewee: { select: { id: true, name: true, role: true } },
+      },
     });
+
+    return res.json(reviews);
+  } catch (error) {
+    console.error("GET REVIEWS ERROR:", error);
+    return res.status(500).json({ message: "Failed to retrieve reviews" });
   }
 };

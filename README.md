@@ -1,14 +1,172 @@
-# FreelanceHub — Freelancer Project Bidding Platform
+# Team 11
 
-A full-stack freelance marketplace where clients post projects, freelancers submit bids, clients choose winners, projects move through milestones, and users leave reviews.
+## Project Name
 
-## Tech Stack
-- Frontend: React + Vite
-- Backend: Node.js + Express
-- Database: PostgreSQL
-- ORM: Prisma
-- Auth: JWT
-- Dev DB: Docker Compose PostgreSQL
+FreelanceHub — Freelancer Project Bidding Platform
+
+## Project Description
+
+FreelanceHub is a full-stack freelance marketplace platform where clients can post projects and freelancers can submit bids on available work. Clients can review bids, choose freelancers, manage milestones, and leave reviews after project completion.
+
+The goal of this project is to create a platform that simplifies interactions between clients and freelancers while providing a structured workflow for project management.
+
+Main features include:
+
+- User authentication and role-based authorization
+- Project posting and management
+- Freelancer bidding system
+- Bid acceptance workflow
+- Milestone tracking
+- Review and rating system
+- Protected routes and user dashboards
+
+
+## Students
+
+### COMP 495 Student
+- Bedolf Tambe - Team Manager
+
+### COMP 394 Students
+- Ben Christy
+- Levi Diaz
+
+### COMP 294 Students
+- Rich Davenport
+
+
+# Tech Stack
+
+### Frontend
+- React
+- Vite
+- React Router
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- PostgreSQL
+
+### ORM
+- Prisma v5.22.0
+
+### Authentication
+- JWT (JSON Web Tokens)
+
+### Development Environment
+- Docker Compose PostgreSQL
+
+
+# Prerequisites
+
+Before running the project, install the following:
+
+- Node.js v22
+- npm
+- Docker Desktop
+- Git
+- VS Code (recommended)
+
+Install Prisma:
+
+```bash
+npm install prisma@5.22.0 @prisma/client@5.22.0
+```
+
+
+# Project Setup and Installation
+
+After cloning the repository locally, follow the setup instructions below.
+
+## Step 1: Start PostgreSQL
+
+From the project root:
+
+```bash
+docker compose up -d
+```
+
+Verify Docker container is running:
+
+```bash
+docker ps
+```
+
+# Backend Setup
+
+Open terminal #1:
+
+```bash
+cd backend
+```
+
+Install backend dependencies:
+
+```bash
+npm install
+```
+
+
+# Prisma Setup
+
+Initialize Prisma:
+
+```bash
+npx prisma init
+```
+
+Generate database tables:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Generate Prisma client:
+
+```bash
+npx prisma generate
+```
+
+# Start Backend
+
+Run backend server:
+
+```bash
+npm run dev
+```
+
+Backend runs on:
+
+```text
+http://localhost:5001
+```
+
+# Frontend Setup
+
+Open terminal #2:
+
+```bash
+cd frontend
+```
+
+Install frontend dependencies:
+
+```bash
+npm install
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+Frontend runs on:
+
+```text
+http://localhost:5173
+```
 
 # Project Structure
 
@@ -64,10 +222,10 @@ freelancehub/
 │   │   ├── pages/
 │   │   │   ├── Dashboard.jsx
 │   │   │   ├── Login.jsx
-│   │   │   ├── NewProject.jsx
-│   │   │   ├── ProjectDetails.jsx
+│   │   │   ├── Register.jsx
 │   │   │   ├── Projects.jsx
-│   │   │   └── Register.jsx
+│   │   │   ├── NewProject.jsx
+│   │   │   └── ProjectDetails.jsx
 │   │   │
 │   │   ├── services/
 │   │   │
@@ -75,59 +233,12 @@ freelancehub/
 │   │   ├── main.jsx
 │   │   └── index.css
 │   │
-│   ├── .env
 │   ├── package.json
 │   └── index.html
 │
 ├── docker-compose.yml
-
-## Quick Start
-
-### 1. Start PostgreSQL
-```bash
-docker compose up -d
+│
+└── README.md
 ```
 
-### 2. Backend setup
-```bash
-cd backend
-npm install
-npx prisma migrate dev --name init
-npm run dev
-```
-
-Backend runs on:
-```text
-http://localhost:5001
-```
-
-### 3. Frontend setup
-Open a second terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend runs on:
-```text
-http://localhost:5173
-```
-
-## Demo Users
-Create users through the Register page:
-- Role: CLIENT
-- Role: FREELANCER
-- Role: ADMIN
-
-## Core MVP Features Included
-- Register/login
-- JWT authentication
-- Role-based users
-- Client project creation
-- Project browsing
-- Freelancer bid submission
-- Client bid acceptance
-- Milestone creation and status updates
-- Review/rating submission
+---

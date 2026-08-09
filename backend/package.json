@@ -5,7 +5,13 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "test:integration": "node --test test/workflow.integration.test.js",
+    "seed": "prisma db seed",
     "prisma": "prisma"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
