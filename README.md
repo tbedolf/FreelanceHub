@@ -1,244 +1,328 @@
-# Team 11
+# 🤝 FreelanceHub
 
-## Project Name
+A full-stack freelance marketplace built as a senior capstone project to connect **clients** and **freelancers** through project posting, bidding, milestone tracking, and reviews.
 
-FreelanceHub — Freelancer Project Bidding Platform
+The application was developed collaboratively using an Agile workflow with Git/GitHub, pull requests, testing, and continuous integration.
 
-## Project Description
+---
 
-FreelanceHub is a full-stack freelance marketplace platform where clients can post projects and freelancers can submit bids on available work. Clients can review bids, choose freelancers, manage milestones, and leave reviews after project completion.
+## ✨ Features
 
-The goal of this project is to create a platform that simplifies interactions between clients and freelancers while providing a structured workflow for project management.
+- 🔐 User registration and login
+- 👥 Role-based access for Clients, Freelancers, and Admins
+- 📋 Project creation and project browsing
+- 💰 Freelancer bidding system
+- ✅ Bid acceptance and rejection
+- 🎯 Milestone tracking
+- ⭐ Reviews and feedback
+- 🛡️ Protected routes and JWT-based authentication
+- 🗄️ PostgreSQL database integration
+- 🚀 CI workflow with GitHub Actions
 
-Main features include:
+---
 
-- User authentication and role-based authorization
-- Project posting and management
-- Freelancer bidding system
-- Bid acceptance workflow
-- Milestone tracking
-- Review and rating system
-- Protected routes and user dashboards
-
-
-## Students
-
-### COMP 495 Student
-- Bedolf Tambe - Team Manager
-
-### COMP 394 Students
-- Ben Christy
-- Levi Diaz
-
-### COMP 294 Students
-- Rich Davenport
-
-
-# Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
+
 - React
 - Vite
 - React Router
+- Axios
+- JavaScript
+- CSS
 
 ### Backend
+
 - Node.js
 - Express.js
+- Prisma ORM
+- JWT
+- bcryptjs
 
 ### Database
+
 - PostgreSQL
+- AWS RDS
 
-### ORM
-- Prisma v5.22.0
+### DevOps & Collaboration
 
-### Authentication
-- JWT (JSON Web Tokens)
-
-### Development Environment
-- Docker Compose PostgreSQL
-
-
-# Prerequisites
-
-Before running the project, install the following:
-
-- Node.js v22
-- npm
-- Docker Desktop
 - Git
-- VS Code (recommended)
+- GitHub
+- GitHub Actions
+- Docker
+- Agile development
+- Pull requests
+- Code reviews
 
-Install Prisma:
+---
 
-```bash
-npm install prisma@5.22.0 @prisma/client@5.22.0
-```
-
-
-# Project Setup and Installation
-
-After cloning the repository locally, follow the setup instructions below.
-
-## Step 1: Start PostgreSQL
-
-From the project root:
-
-```bash
-docker compose up -d
-```
-
-Verify Docker container is running:
-
-```bash
-docker ps
-```
-
-# Backend Setup
-
-Open terminal #1:
-
-```bash
-cd backend
-```
-
-Install backend dependencies:
-
-```bash
-npm install
-```
-
-
-# Prisma Setup
-
-Initialize Prisma:
-
-```bash
-npx prisma init
-```
-
-Generate database tables:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-Generate Prisma client:
-
-```bash
-npx prisma generate
-```
-
-# Start Backend
-
-Run backend server:
-
-```bash
-npm run dev
-```
-
-Backend runs on:
+## 🏗️ Architecture
 
 ```text
-http://localhost:5001
+┌───────────────────────────────┐
+│           User                │
+│       Web Browser             │
+└──────────────┬────────────────┘
+               │
+               ▼
+┌───────────────────────────────┐
+│        React Frontend         │
+│      Vite / React Router      │
+└──────────────┬────────────────┘
+               │
+             REST API
+               │
+               ▼
+┌───────────────────────────────┐
+│     Node.js / Express API     │
+│ JWT Auth • Role Protection    │
+└──────────────┬────────────────┘
+               │
+            Prisma ORM
+               │
+               ▼
+┌───────────────────────────────┐
+│          PostgreSQL           │
+│          AWS RDS              │
+└───────────────────────────────┘
 ```
 
-# Frontend Setup
+---
 
-Open terminal #2:
+## 👥 User Roles
 
-```bash
-cd frontend
-```
+### Client
 
-Install frontend dependencies:
+Clients can:
 
-```bash
-npm install
-```
+- Create projects
+- Define budgets and project details
+- Review freelancer bids
+- Manage project milestones
+- Leave reviews
 
-Run frontend:
+### Freelancer
 
-```bash
-npm run dev
-```
+Freelancers can:
 
-Frontend runs on:
+- Browse available projects
+- Submit bids
+- Track accepted work
+- Participate in milestone workflows
+
+### Admin
+
+Administrators support platform oversight and role-based access.
+
+---
+
+## 📦 Core Data Model
+
+The application uses Prisma with PostgreSQL.
+
+Core models include:
+
+- `User`
+- `Project`
+- `Bid`
+- `Milestone`
+- `Review`
+
+### Project Status
+
+- `OPEN`
+- `IN_PROGRESS`
+- `COMPLETED`
+- `CANCELLED`
+
+### Bid Status
+
+- `PENDING`
+- `ACCEPTED`
+- `REJECTED`
+
+### Milestone Status
+
+- `TODO`
+- `IN_PROGRESS`
+- `SUBMITTED`
+- `APPROVED`
+
+---
+
+## 🔐 Authentication & Authorization
+
+FreelanceHub uses JWT-based authentication.
+
+Authenticated API requests use a Bearer token:
 
 ```text
-http://localhost:5173
+Authorization: Bearer <token>
 ```
 
-# Project Structure
+Protected backend routes validate the user's identity and role before allowing access to restricted functionality.
+
+Passwords are hashed using `bcryptjs`.
+
+---
+
+## 🔌 API Overview
+
+Representative API routes include:
 
 ```text
-freelancehub/
+POST /api/auth/register
+POST /api/auth/login
+
+GET  /api/projects
+GET  /api/projects/:id
+POST /api/projects
+
+POST /api/projects/:id/bids
+POST /api/projects/:id/milestones
+POST /api/projects/:id/reviews
+```
+
+---
+
+## 📁 Project Structure
+
+```text
+FreelanceHub/
 │
 ├── backend/
-│   │
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
 │   ├── prisma/
-│   │   └── schema.prisma
-│   │
-│   ├── src/
-│   │   │
-│   │   ├── controllers/
-│   │   │   ├── auth.controller.js
-│   │   │   ├── bid.controller.js
-│   │   │   ├── milestone.controller.js
-│   │   │   ├── project.controller.js
-│   │   │   └── review.controller.js
-│   │   │
-│   │   ├── middleware/
-│   │   │   └── auth.js
-│   │   │
-│   │   ├── routes/
-│   │   │   ├── auth.routes.js
-│   │   │   ├── bid.routes.js
-│   │   │   ├── milestone.routes.js
-│   │   │   ├── project.routes.js
-│   │   │   └── review.routes.js
-│   │   │
-│   │   ├── utils/
-│   │   │   └── prisma.js
-│   │   │
-│   │   └── server.js
-│   │
-│   ├── .env
-│   ├── package.json
-│   └── prisma.config.ts
+│   └── server files
 │
 ├── frontend/
-│   │
 │   ├── src/
-│   │   │
-│   │   ├── api/
-│   │   │
 │   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   └── ProtectedRoute.jsx
-│   │   │
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx
-│   │   │
 │   │   ├── pages/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   ├── Projects.jsx
-│   │   │   ├── NewProject.jsx
-│   │   │   └── ProjectDetails.jsx
-│   │   │
-│   │   ├── services/
-│   │   │
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   │
-│   ├── package.json
-│   └── index.html
+│   │   └── context/
+│   └── Vite configuration
 │
-├── docker-compose.yml
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 │
 └── README.md
 ```
 
 ---
+
+## 🖥️ Frontend Pages
+
+The application includes pages for:
+
+- Login
+- Registration
+- Dashboard
+- Projects
+- Project Details
+- New Project
+- Task Board
+- Workspaces
+
+Protected routes are used to restrict authenticated areas of the application.
+
+---
+
+## ☁️ Cloud Database
+
+The project was configured to use **Amazon RDS for PostgreSQL**.
+
+Prisma manages the database schema and application data access.
+
+This provided practical experience with:
+
+- Cloud database connectivity
+- Environment variables
+- Database migrations
+- Security group configuration
+- Troubleshooting database connection issues
+
+---
+
+## ⚙️ Continuous Integration
+
+GitHub Actions is used for CI checks.
+
+The workflow supports automated validation of project changes and reinforces collaborative development practices.
+
+---
+
+## 🎯 What This Project Demonstrates
+
+FreelanceHub demonstrates hands-on experience with:
+
+- Full-stack application development
+- REST API design
+- Authentication and authorization
+- Role-based access control
+- Relational database design
+- PostgreSQL and Prisma ORM
+- AWS RDS
+- React frontend development
+- Express.js backend development
+- Git/GitHub collaboration
+- CI/CD concepts
+- Agile team development
+- Debugging and integration troubleshooting
+
+---
+
+## 🚀 Local Development
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Create the required environment variables before starting the application.
+
+Example backend variables:
+
+```env
+DATABASE_URL=your_postgresql_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5001
+CLIENT_URL=http://localhost:5173
+```
+
+> Never commit real credentials or production connection strings.
+
+---
+
+## 🔮 Future Improvements
+
+Potential future enhancements include:
+
+- Real-time messaging
+- File uploads
+- Notifications
+- Expanded administrative controls
+- Improved testing coverage
+- Production deployment improvements
+
+---
+
+## 👤 Author
+
+**Bedolf Tambe**
+
+Cloud • DevOps • Networking • Systems Administration • Software Engineering
